@@ -4,8 +4,8 @@ import { Welcome } from "@/components/Welcome";
 import { ChallengeForm } from "@/components/ChallengeForm";
 import { Dashboard } from "@/components/Dashboard";
 
-function page() {
-  const { connector, isConnected, address } = useAccount();
+function Page() {
+  const { isConnected } = useAccount();
 
   return (
     <main className="py-8">
@@ -20,4 +20,4 @@ function page() {
   );
 }
 
-export default page;
+export default Page;
