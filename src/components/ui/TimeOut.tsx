@@ -19,36 +19,20 @@ type TimeOutProps = {
 
 export const TimeOut = ({ game, functionName }: TimeOutProps) => {
   const { address } = useAccount();
-  let contractConfig;
+  const actualFunctionName =
+    functionName === "j2Timeout" ? "j2Timeout" : "j1Timeout";
 
-  if (functionName === "j2Timeout") {
-    const { config } = usePrepareContractWrite({
-      address: game,
-      abi: rpslsContractAbi,
-      functionName: "j2Timeout",
-      chainId: sepolia.id,
-      account: address,
+  const { config: contractConfig } = usePrepareContractWrite({
+    address: game,
+    abi: rpslsContractAbi,
+    functionName: actualFunctionName,
+    chainId: sepolia.id,
+    account: address,
 
-      onError(error) {
-        console.log("ERROR--------------", error);
-      },
-    });
-
-    contractConfig = config;
-  } else {
-    const { config } = usePrepareContractWrite({
-      address: game,
-      abi: rpslsContractAbi,
-      functionName: "j1Timeout",
-      chainId: sepolia.id,
-      account: address,
-
-      onError(error) {
-        console.log("ERROR--------------", error);
-      },
-    });
-    contractConfig = config;
-  }
+    onError(error) {
+      console.log("ERROR--------------", error);
+    },
+  });
 
   const { isLoading, write, isSuccess } = useContractWrite(contractConfig);
 
