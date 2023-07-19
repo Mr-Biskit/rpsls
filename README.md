@@ -1,4 +1,4 @@
-# Exercise D
+# Exercise D: Rock, Paper, Scissor, Lizard, Spock
 
 This is the submission for exercise D. I have developed a Decentralized Application (Dapp) that enables users to play Rock, Paper, Scissors, Lizard, Spock. Users interact with the Dapp by staking ETH, with the challenging player initiating the game by creating a contract. This contract serves as the main point of interaction. The stake is claimed entirely by the winning player.
 
