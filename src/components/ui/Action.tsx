@@ -6,6 +6,7 @@ import { parseEther } from "viem";
 import { Solve } from "./Solve";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { Outcome } from "./Outcome";
+import { set } from "zod";
 
 type ActionProps = {
   c2: number;
@@ -63,7 +64,11 @@ export const Action = ({
         <Solve game={game} move={moveFromStorage} salt={saltFromStorage} />
       );
     } else {
-      return <div>No move and/or salt from storage found!</div>;
+      setMoveFromStorage(gameData?.move);
+      setSaltFromStorage(gameData?.saltString);
+      return (
+        <Solve game={game} move={moveFromStorage} salt={saltFromStorage} />
+      );
     }
   }
 
