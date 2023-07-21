@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Button } from "./button";
+
 import { Address, useAccount } from "wagmi";
 import { Play } from "./Play";
 import { parseEther } from "viem";
 import { Solve } from "./Solve";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { Outcome } from "./Outcome";
 
 type ActionProps = {
   c2: number;
@@ -13,6 +14,8 @@ type ActionProps = {
   game: Address;
   stake: string;
 };
+
+// This component manages the different states of a game.
 
 export const Action = ({
   c2,
@@ -26,6 +29,10 @@ export const Action = ({
     key: game as string,
     initialValue: null,
   });
+  const [moveFromStorage, setMoveFromStorage] = useState(() => gameData?.move);
+  const [saltFromStorage, setSaltFromStorage] = useState(
+    () => gameData?.saltString
+  );
 
   useEffect(() => {
     if (gameData) {
@@ -33,9 +40,6 @@ export const Action = ({
       setSaltFromStorage(gameData.saltString);
     }
   }, [gameData]);
-
-  const [moveFromStorage, setMoveFromStorage] = useState();
-  const [saltFromStorage, setSaltFromStorage] = useState();
 
   if (
     (c2 === 0 && gameStarter === address) ||
@@ -59,12 +63,11 @@ export const Action = ({
         <Solve game={game} move={moveFromStorage} salt={saltFromStorage} />
       );
     } else {
-      // Handle the case where salt and move are not available.
       return <div>No move and/or salt from storage found!</div>;
     }
   }
 
   if (stake === "0") {
-    return <div className="text-center font-bold">Game Concluded</div>;
+    return <Outcome gameAddress={game} />;
   }
 };

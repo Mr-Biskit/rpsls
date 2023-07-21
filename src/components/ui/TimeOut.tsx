@@ -8,7 +8,6 @@ import {
   sepolia,
 } from "wagmi";
 import { rpslsContractAbi } from "@/contract";
-import { Loader2 } from "lucide-react";
 import { CardTitle } from "./card";
 import { useAccount } from "wagmi";
 
@@ -17,8 +16,12 @@ type TimeOutProps = {
   functionName: string;
 };
 
+// This component allows players to timeout their opponent if the game isn't progressing.
+
 export const TimeOut = ({ game, functionName }: TimeOutProps) => {
   const { address } = useAccount();
+
+  // Determine the actual function to be called based on the passed in functionName
   const actualFunctionName =
     functionName === "j2Timeout" ? "j2Timeout" : "j1Timeout";
 
@@ -36,6 +39,9 @@ export const TimeOut = ({ game, functionName }: TimeOutProps) => {
 
   const { isLoading, write, isSuccess } = useContractWrite(contractConfig);
 
+  // If the write action is not yet successful, show a button allowing the user to timeout the game.
+  // If the button is clicked, the write function is triggered, and the button is disabled while the action is in progress.
+  // Once the action is successful, a message is displayed instead of the button.
   if (!isSuccess) {
     return (
       <Button
@@ -44,9 +50,7 @@ export const TimeOut = ({ game, functionName }: TimeOutProps) => {
         disabled={isLoading}
         variant="destructive"
       >
-        {isLoading
-          ? <Loader2 className="animate-spin h-5 w-5" /> + "Timing Out"
-          : "Timeout"}
+        {isLoading ? "Timing Out" : "Timeout"}
       </Button>
     );
   } else {

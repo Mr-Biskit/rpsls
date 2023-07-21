@@ -9,6 +9,7 @@ type SolveProps = {
   move: number;
 };
 
+// This component provides the ability to solve the game by revealing the player's move.
 export const Solve = ({ game, salt, move }: SolveProps) => {
   const publicClient = usePublicClient();
   const { data } = useWalletClient();
@@ -26,8 +27,9 @@ export const Solve = ({ game, salt, move }: SolveProps) => {
       walletClient,
       publicClient
     );
-    console.log(hash);
   };
+
+  // The Solve component renders a Button that, when clicked, calls the onSubmit function, revealing the user's move in the game.
 
   return <Button onClick={() => onSubmit()}>Reveal</Button>;
 };
