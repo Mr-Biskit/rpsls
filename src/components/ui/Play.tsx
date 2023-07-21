@@ -1,12 +1,8 @@
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetDescription,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -15,7 +11,6 @@ import { useForm } from "react-hook-form";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -32,7 +27,6 @@ import {
   Address,
   WalletClient,
 } from "wagmi";
-import { type } from "os";
 import { playMove } from "@/lib/viem";
 
 type PlayProps = {
@@ -47,10 +41,14 @@ const formSchema = z.object({
   }),
 });
 
+// This component provides the ability to make a move in a game.
 export function Play({ game, stake }: PlayProps) {
   const { address } = useAccount();
   const publicClient = usePublicClient();
   const { data } = useWalletClient();
+
+  // The form is setup using the useForm hook and is initially set to "rock".
+  // The form requires that the user input a move, which must be one of "rock", "paper", "scissors", "lizard", or "spock".
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -64,8 +62,6 @@ export function Play({ game, stake }: PlayProps) {
     const walletClient: WalletClient = data!;
     const account: Address = address!;
 
-    console.log("Move initiated");
-
     const hash = await playMove(
       gameAddress,
       move,
@@ -74,9 +70,10 @@ export function Play({ game, stake }: PlayProps) {
       publicClient,
       stake
     );
-    console.log(hash);
   };
 
+  // The Play component renders a sheet that asks the user if they would like to accept the challenge.
+  // The sheet includes a form that the user can use to submit their move.
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -115,19 +112,13 @@ export function Play({ game, stake }: PlayProps) {
                     </FormControl>
                     <ChevronDown className="absolute right-3 top-2.5 h-4 w-4 opacity-50" />
                   </div>
-
+                  <Button type="submit">Submit</Button>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button type="submit">Submit</Button>
           </form>
         </Form>
-        <SheetFooter>
-          <SheetClose asChild>
-            <Button type="submit">Save changes</Button>
-          </SheetClose>
-        </SheetFooter>
       </SheetContent>
     </Sheet>
   );

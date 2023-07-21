@@ -59,7 +59,6 @@ export function ChallengeForm() {
   useEffect(() => {
     if (receipt) {
       toast({
-        className: "bg-transparent border border-white text-white",
         title: "Challenge Sent",
         description: "Contract address: " + receipt.contractAddress,
       });
@@ -77,7 +76,7 @@ export function ChallengeForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // Clean Data
+    // Data normalization: moving values from form to respective variables, hashing the move
     const move = generateEnumValue(values.move);
     const salt = generateSalt();
     const address = values.address;
@@ -87,7 +86,7 @@ export function ChallengeForm() {
     console.log(address);
     const walletClient = data!;
 
-    // Deploy Contract
+    // Attempt to deploy the contract with the hashed move, addresses and bet amount
     try {
       const receipt = await deployContract(
         walletClient,
@@ -95,12 +94,14 @@ export function ChallengeForm() {
         publicClient,
         bet
       );
+      // If successful, save the contract address to a list for each user in the database
       if (receipt) {
         await db.lpush(connectedAddress!, receipt.contractAddress);
         await db.lpush(address, receipt.contractAddress);
       }
       setReceipt(receipt);
 
+      // Save the salt and move to the local storage, using the contract's address as key
       const saltString = salt.toString();
       console.log(saltString);
       setSaltAndMove(receipt!.contractAddress as string, {
@@ -110,11 +111,11 @@ export function ChallengeForm() {
     } catch (e) {
       console.log(e);
     }
-
-    // Add Salt and Move to Local Storage
   }
 
   return (
+    // Form setup with fields for opponent's address, bet amount, and move
+    // Each FormField component handles its own state, validation and rendering, allowing a clean form structure
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}

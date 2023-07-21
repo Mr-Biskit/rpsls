@@ -19,10 +19,6 @@ export const deployContract = async (
   value: number
 ) => {
   const [address] = await walletClient.requestAddresses();
-  console.log(`Deploying contract from address ${address}`);
-  console.log(
-    `Deploying contract with args ${stringify(args)} and value ${value}`
-  );
   try {
     const hash = await walletClient.deployContract({
       abi: rpslsContractAbi,
@@ -32,9 +28,7 @@ export const deployContract = async (
       value: await parseEther(value.toString()),
       chain: sepolia,
     });
-    console.log(`Deploying contract with hash ${hash}`);
     const receipt = await publicClient.waitForTransactionReceipt({ hash });
-    console.log(`Contract deployed at ${receipt.contractAddress}`);
     return receipt;
   } catch (error) {
     console.error(error);
@@ -86,6 +80,7 @@ export async function readGameContract(
       abi: rpslsContractAbi,
       functionName: "c2",
     });
+
     return {
       gameStarter,
       gameJoiner,
@@ -107,9 +102,7 @@ export async function playMove(
   stake: string
 ) {
   let request;
-  // Simulate the Contract Function Call
   try {
-    console.log("Simulating contract function call");
     const simulateContractResponse = await publicClient.simulateContract({
       address: address,
       abi: rpslsContractAbi,
@@ -127,7 +120,6 @@ export async function playMove(
   }
   try {
     const hash = await walletClient.writeContract(request!);
-    console.log(`Transaction hash: ${hash}`);
   } catch (err) {
     console.error("Error while executing contract:", err);
   }
@@ -142,9 +134,7 @@ export async function solveGame(
   publicClient: PublicClient
 ) {
   let request;
-  // Simulate the Contract Function Call
   try {
-    console.log("Simulating contract function call");
     const simulateContractResponse = await publicClient.simulateContract({
       address: address,
       abi: rpslsContractAbi,
@@ -164,7 +154,6 @@ export async function solveGame(
     const tx = await publicClient.getTransaction({ hash });
     console.log(tx);
 
-    console.log(`Transaction hash: ${hash}`);
     return hash;
   } catch (err) {
     console.error("Error while executing contract:", err);

@@ -1,5 +1,5 @@
 "use client";
-import React, { Suspense, useRef } from "react";
+import React from "react";
 import { Card, CardContent, CardTitle, CardHeader } from "./ui/card";
 import { readGameContract } from "@/lib/viem";
 import { Address, usePublicClient, useAccount } from "wagmi";
@@ -8,7 +8,8 @@ import { useState, useEffect } from "react";
 import Countdown from "react-countdown";
 import { TimeOut } from "./ui/TimeOut";
 import { Action } from "./ui/Action";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 type GameCardProps = {
   game: Address;
@@ -16,37 +17,48 @@ type GameCardProps = {
 
 const TIMEOUT_MINUTES = 350000;
 
+// This component displays a single game in a card format.
+
 export const GameCard = ({ game }: GameCardProps) => {
   const { address } = useAccount();
   const publicClient = usePublicClient();
 
   const [gameDetails, setGameDetails] = useState<any>(null);
+  const [gameStake, setGameStake] = useState<string>("");
   const [opponent, setOpponent] = useState<any>(null);
   const [timeOutFunction, setTimeOutFunction] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [lastAction, setLastAction] = useState<number>(0);
 
-  // Game details set up. Allows the player to see their opponent address and what time out function needs to
-  // be called for the player connected. Sets lastAction to show countdown timer.
-
+  // Async function to load game details from the blockchain
   async function getGameDetails() {
     try {
+      // Requesting game details from contract using the public client
       const gameDetails = await readGameContract(game, publicClient);
+
+      // Setting loading state and game details
+      setIsLoading((prevIsLoading) => true);
+      setGameDetails(gameDetails);
+
+      // Deciding the opponent and the timeout function based on who initiated the game
       if (gameDetails!.gameStarter === address) {
         setOpponent(gameDetails!.gameJoiner);
-        setTimeOutFunction("j2Timeout");
+        setTimeOutFunction((prevTimeoutFunction) => "j2Timeout");
       } else {
         setOpponent(gameDetails!.gameStarter);
-        setTimeOutFunction("j1Timeout");
+        setTimeOutFunction((prevTimeoutFunction) => "j1Timeout");
       }
-      const lastAction = formatUnits(gameDetails!.lastAction, 0);
-      setLastAction(parseInt(lastAction) * 1000);
 
-      setGameDetails(gameDetails);
+      // Getting last action time and converting it
+      const lastAction = formatUnits(gameDetails!.lastAction, 0);
+      setLastAction((prevLastAction) => parseInt(lastAction) * 1000);
+
+      // Formatting game stake
+      setGameStake((prevGameStake) => formatEther(gameDetails!.stake));
     } catch (error) {
       console.log(error);
     } finally {
-      setIsLoading(false);
+      setIsLoading((prevIsLoading) => false);
     }
   }
 
@@ -55,7 +67,7 @@ export const GameCard = ({ game }: GameCardProps) => {
     const intervalId = setInterval(getGameDetails, 10000);
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [game]);
 
   if (isLoading) {
     return (
@@ -76,9 +88,7 @@ export const GameCard = ({ game }: GameCardProps) => {
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">
             {gameDetails.stake > 0 ? (
-              <span className="text-sm font-medium">
-                Stake: {formatEther(gameDetails.stake)}
-              </span>
+              <span className="text-sm font-medium">Stake: {gameStake}</span>
             ) : (
               <span className="text-sm font-medium">Stake Distributed</span>
             )}
@@ -120,6 +130,19 @@ export const GameCard = ({ game }: GameCardProps) => {
         <CardContent>
           <div className="text-2xl font-bold">Opponent</div>
           <p className="text-xs text-muted-foreground">{opponent}</p>
+          <div className="flex space-between mt-3 ">
+            <p className="text-xs text-muted-foreground">
+              Game Contract: {game}
+            </p>
+            <Link
+              href={`https://sepolia.etherscan.io/address/${game}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="justify-center flex items-center"
+            >
+              <ArrowRight className="h-4 w-4 text-muted-foreground  " />
+            </Link>
+          </div>
         </CardContent>
       </Card>
       <Card className="flex items-center justify-center ml-2 p-4 w-1/4">
@@ -129,7 +152,7 @@ export const GameCard = ({ game }: GameCardProps) => {
             gameJoiner={gameDetails.gameJoiner}
             gameStarter={gameDetails.gameStarter}
             game={game}
-            stake={formatEther(gameDetails.stake)}
+            stake={gameStake}
           />
         </CardContent>
       </Card>
