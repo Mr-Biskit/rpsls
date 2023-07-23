@@ -8,6 +8,7 @@ import useLocalStorage from "@/hooks/useLocalStorage";
 import { Outcome } from "./Outcome";
 import { Loader2 } from "lucide-react";
 import { CardTitle } from "./card";
+import { get } from "http";
 
 type ActionProps = {
   c2: number;
@@ -48,10 +49,12 @@ export const Action = ({
   };
 
   useEffect(() => {
-    if (gameData) {
-      getLocalStorage();
+    if (c2 > 0 && gameStarter === address && parseEther(stake) > 0) {
+      if (gameData) {
+        getLocalStorage();
+      }
     }
-  }, [gameData]);
+  }, [gameData, c2, gameStarter, address, stake]);
 
   if (
     (c2 === 0 && gameStarter === address) ||
@@ -70,6 +73,7 @@ export const Action = ({
   }
 
   if (c2 > 0 && gameStarter === address && parseEther(stake) > 0) {
+    getLocalStorage();
     if (isLoading) {
       return (
         <>
