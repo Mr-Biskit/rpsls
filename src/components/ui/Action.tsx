@@ -6,7 +6,8 @@ import { parseEther } from "viem";
 import { Solve } from "./Solve";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { Outcome } from "./Outcome";
-import { set } from "zod";
+import { Loader2 } from "lucide-react";
+import { CardTitle } from "./card";
 
 type ActionProps = {
   c2: number;
@@ -26,19 +27,29 @@ export const Action = ({
   stake,
 }: ActionProps) => {
   const { address } = useAccount();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [gameData] = useLocalStorage({
     key: game as string,
     initialValue: null,
   });
-  const [moveFromStorage, setMoveFromStorage] = useState(() => gameData?.move);
-  const [saltFromStorage, setSaltFromStorage] = useState(
-    () => gameData?.saltString
-  );
+  const [moveFromStorage, setMoveFromStorage] = useState();
+  const [saltFromStorage, setSaltFromStorage] = useState();
+
+  const getLocalStorage = async () => {
+    try {
+      setIsLoading((prevIsLoading) => true);
+      setMoveFromStorage(gameData.move);
+      setSaltFromStorage(gameData.saltString);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading((prevIsLoading) => false);
+    }
+  };
 
   useEffect(() => {
     if (gameData) {
-      setMoveFromStorage(gameData.move);
-      setSaltFromStorage(gameData.saltString);
+      getLocalStorage();
     }
   }, [gameData]);
 
@@ -59,15 +70,18 @@ export const Action = ({
   }
 
   if (c2 > 0 && gameStarter === address && parseEther(stake) > 0) {
-    if (moveFromStorage && saltFromStorage) {
+    if (isLoading) {
       return (
-        <Solve game={game} move={moveFromStorage} salt={saltFromStorage} />
+        <>
+          <Loader2 className="animate-spin text-center" />
+          <CardTitle className="text-sm font-medium text-center">
+            Loading...
+          </CardTitle>
+        </>
       );
     } else {
-      setMoveFromStorage(gameData?.move);
-      setSaltFromStorage(gameData?.saltString);
       return (
-        <Solve game={game} move={moveFromStorage} salt={saltFromStorage} />
+        <Solve game={game} move={moveFromStorage!} salt={saltFromStorage!} />
       );
     }
   }
