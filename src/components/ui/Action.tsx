@@ -73,7 +73,6 @@ export const Action = ({
   }
 
   if (c2 > 0 && gameStarter === address && parseEther(stake) > 0) {
-    getLocalStorage();
     if (isLoading) {
       return (
         <>
