@@ -153,6 +153,7 @@ export const GameCard = ({ game }: GameCardProps) => {
             gameStarter={gameDetails.gameStarter}
             game={game}
             stake={gameStake}
+            lastAction={lastAction}
           />
         </CardContent>
       </Card>
